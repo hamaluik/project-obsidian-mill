@@ -11,6 +11,7 @@ use specs::prelude::*;
 mod components;
 mod systems;
 mod util;
+mod texturepacker;
 
 fn window() -> web_sys::Window {
     web_sys::window().expect("no global `window` exists")
@@ -55,12 +56,16 @@ pub fn start() -> Result<(), JsValue> {
     let mut world = World::new();
     world.add_resource(DeltaTime(0.05));
     world.add_resource(ScreenSize(true));
-    world.register::<components::Colour>();
+    world.register::<components::Transform>();
+    world.register::<components::Sprite>();
 
-    world.create_entity().with(components::Colour{ hue: 145.0 }).build();
+    world.create_entity()
+        .with(components::Transform{ x: 0.0, y: 0.0 })
+        .with(components::Sprite{ u: 0.0, v: 0.5, w_uv: 0.5, h_uv: 0.5 })
+        .build();
 
     let mut update_dispatcher = DispatcherBuilder::new()
-        .with(systems::HueShift, "hueshift", &[])
+        //.with(systems::HueShift, "hueshift", &[])
         .build();
     let mut render_dispatcher = DispatcherBuilder::new()
         .with_thread_local(systems::RenderSystem::new(crc)?)

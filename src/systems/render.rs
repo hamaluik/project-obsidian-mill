@@ -62,8 +62,8 @@ impl RenderSystem {
         let index_buffer = wasm_bindgen::memory()
             .dyn_into::<WebAssembly::Memory>()?
             .buffer();
-        let indices_location = indices.as_ptr() as u32 / 4;
-        let index_array = js_sys::Float32Array::new(&index_buffer)
+        let indices_location = indices.as_ptr() as u32 / 2;
+        let index_array = js_sys::Uint16Array::new(&index_buffer)
             .subarray(indices_location, indices_location + indices.len() as u32);
 
         let buffer = context.create_buffer().ok_or("failed to create buffer")?;
@@ -82,41 +82,27 @@ impl RenderSystem {
 }
 
 impl<'a> System<'a> for RenderSystem {
-    type SystemData = (Read<'a, crate::ScreenSize>, ReadStorage<'a, crate::components::Colour>);
+    type SystemData = (Read<'a, crate::ScreenSize>, ReadStorage<'a, crate::components::Transform>, ReadStorage<'a, crate::components::Sprite>);
 
     fn run(&mut self, data: Self::SystemData) {
-        let (ss, colour) = data;
+        let (ss, transform, sprite) = data;
+
+        // TODO: build buffers
+
+        // resize
         if ss.0 {
             self.context.viewport(0, 0, self.context.drawing_buffer_width(), self.context.drawing_buffer_height());
         }
 
+        // draw
         self.context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
-
-        use specs::Join;
-        for colour in colour.join() {
-            let colour = hsl::HSL {
-                h: colour.hue,
-                s: 1.0,
-                l: 0.5,
-            };
-            let rgb = colour.to_rgb();
-            let rgb: [f32; 3] = [(rgb.0 as f32) / 255.0, (rgb.1 as f32) / 255.0, (rgb.2 as f32) / 255.0];
-            //self.context.uniform3fv_with_f32_array(Some(&self.colour_location), &rgb);
-            self.context.uniform1i(Some(&self.image_location), 0);
-
-            // draw!
-            //self.context.draw_arrays(
-            //    WebGlRenderingContext::TRIANGLES,
-            //    0,
-            //    3,//(vertices.len() / 3) as i32,
-            //);
-            self.context.draw_elements_with_i32(
-                WebGlRenderingContext::TRIANGLES,
-                6,
-                WebGlRenderingContext::UNSIGNED_SHORT,
-                0
-            );
-        }
+        self.context.uniform1i(Some(&self.image_location), 0);
+        self.context.draw_elements_with_i32(
+            WebGlRenderingContext::TRIANGLES,
+            6,
+            WebGlRenderingContext::UNSIGNED_SHORT,
+            0
+        );
     }
 }
 
