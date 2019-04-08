@@ -1,0 +1,38 @@
+[package]
+name = "obsidian-mill"
+version = "0.1.0"
+authors = ["Kenton Hamaluik <kenton@hamaluik.ca>"]
+edition = "2018"
+description = "playing with webgl in rust"
+license = "Apache-2.0"
+repository = "https://github.com/hamaluik/obsidian-mill/"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+js-sys = "0.3.17"
+wasm-bindgen = "0.2.40"
+hsl = "0.1.1"
+specs = { version = "0.14.3", default-features = false }
+specs-derive = "0.4.0"
+console_error_panic_hook = "0.1.6"
+cgmath = "0.17.0"
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = [
+  'console',
+  'Document',
+  'Element',
+  'HtmlElement',
+  'HtmlImageElement',
+  'HtmlCanvasElement',
+  'WebGlBuffer',
+  'WebGlRenderingContext',
+  'WebGlUniformLocation',
+  'WebGlProgram',
+  'WebGlShader',
+  'WebGlTexture',
+  'Window',
+]
